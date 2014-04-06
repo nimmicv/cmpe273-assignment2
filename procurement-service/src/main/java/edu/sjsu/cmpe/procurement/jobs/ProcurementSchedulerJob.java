@@ -17,9 +17,9 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 /**
- * This job will run at every 5 second.
+ * This job will run at every 5 minutes or 18000 second.
  */
-@Every("20s")
+@Every("18000s")
 public class ProcurementSchedulerJob extends Job {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
