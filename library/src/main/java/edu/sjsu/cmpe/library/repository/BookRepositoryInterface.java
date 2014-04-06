@@ -19,7 +19,7 @@ public interface BookRepositoryInterface {
      *            a book instance to be create in the repository
      * @return a newly created book instance with auto-generated ISBN
      */
-    Book saveBook(Book newBook);
+    Book saveBook(Book newBook,Long isbn);
 
     /**
      * Retrieve an existing book by ISBN

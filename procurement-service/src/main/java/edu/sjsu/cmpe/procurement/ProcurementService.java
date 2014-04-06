@@ -12,6 +12,7 @@ import com.yammer.dropwizard.config.Environment;
 import de.spinscale.dropwizard.jobs.JobsBundle;
 import edu.sjsu.cmpe.procurement.api.resources.RootResource;
 import edu.sjsu.cmpe.procurement.config.ProcurementServiceConfiguration;
+import edu.sjsu.cmpe.procurement.stomp.StompConfiguration;
 
 public class ProcurementService extends Service<ProcurementServiceConfiguration> {
 
@@ -42,6 +43,14 @@ public class ProcurementService extends Service<ProcurementServiceConfiguration>
 	jerseyClient = new JerseyClientBuilder()
 	.using(configuration.getJerseyClientConfiguration())
 	.using(environment).build();
+	// This is how you pull the configurations from library_x_config.yml
+    StompConfiguration stompconfig= new StompConfiguration();
+    stompconfig.setApolloUser(configuration.getApolloUser());
+    stompconfig.setPassword(configuration.getApolloPassword());
+    stompconfig.setPort(configuration.getApolloPort());
+    stompconfig.setQueueName(configuration.getStompQueueName());
+    stompconfig.setTopicName(configuration.getStompTopicPrefix());
+    stompconfig.setHostName(configuration.getApolloHost());
 
 	/**
 	 * Root API - Without RootResource, Dropwizard will throw this
@@ -52,10 +61,9 @@ public class ProcurementService extends Service<ProcurementServiceConfiguration>
 	 * ResourceConfig instance does not contain any root resource classes.
 	 */
 	environment.addResource(RootResource.class);
-
-	String queueName = configuration.getStompQueueName();
-	String topicName = configuration.getStompTopicPrefix();
-	log.debug("Queue name is {}. Topic is {}", queueName, topicName);
+	
+	
+	log.debug("Queue name is {}. Topic is {}", configuration.getStompQueueName(), configuration.getStompTopicName());
 	// TODO: Apollo STOMP Broker URL and login
 
     }

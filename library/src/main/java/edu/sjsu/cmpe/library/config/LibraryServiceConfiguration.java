@@ -17,6 +17,51 @@ public class LibraryServiceConfiguration extends Configuration {
     @NotEmpty
     @JsonProperty
     private String libraryName;
+    
+    @JsonProperty
+    private String apolloUser;
+    
+    @JsonProperty
+    private String apolloPassword;
+    
+	@JsonProperty
+    private String apolloHost;
+    
+    @JsonProperty
+    private int apolloPort;
+    
+    public String getApolloPassword() {
+		return apolloPassword;
+	}
+
+	public void setApolloPassword(String apolloPassword) {
+		this.apolloPassword = apolloPassword;
+	}
+
+	public String getApolloHost() {
+		return apolloHost;
+	}
+
+	public void setApolloHost(String apolloHost) {
+		this.apolloHost = apolloHost;
+	}
+
+	public int getApolloPort() {
+		return apolloPort;
+	}
+
+	public void setApolloPort(int apolloPort) {
+		this.apolloPort = apolloPort;
+	}
+
+	public void setApolloUser(String apolloUser) {
+		this.apolloUser = apolloUser;
+	}
+
+	public String getApolloUser() {
+		// TODO Auto-generated method stub
+		return apolloUser;
+	}
 
     /**
      * @return the stompQueueName
@@ -62,4 +107,6 @@ public class LibraryServiceConfiguration extends Configuration {
     public void setLibraryName(String libraryName) {
 	this.libraryName = libraryName;
     }
+
+	
 }

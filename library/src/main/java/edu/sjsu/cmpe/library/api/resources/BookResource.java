@@ -1,5 +1,9 @@
 package edu.sjsu.cmpe.library.api.resources;
 
+import java.net.URL;
+
+import javax.jms.Connection;
+import javax.jms.JMSException;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -14,6 +18,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.sjsu.edu.library.stompMessage.StompMessaging;
 import com.yammer.dropwizard.jersey.params.LongParam;
 import com.yammer.metrics.annotation.Timed;
 
@@ -30,6 +35,7 @@ import edu.sjsu.cmpe.library.repository.BookRepositoryInterface;
 public class BookResource {
     /** bookRepository instance */
     private final BookRepositoryInterface bookRepository;
+    private final StompMessaging stompInstance;
 
     /**
      * BookResource constructor
@@ -37,8 +43,9 @@ public class BookResource {
      * @param bookRepository
      *            a BookRepository instance
      */
-    public BookResource(BookRepositoryInterface bookRepository) {
+    public BookResource(BookRepositoryInterface bookRepository,StompMessaging instance) {
 	this.bookRepository = bookRepository;
+	this.stompInstance = instance;
     }
 
     @GET
@@ -60,7 +67,7 @@ public class BookResource {
     @Timed(name = "create-book")
     public Response createBook(@Valid Book request) {
 	// Store the new book in the BookRepository so that we can retrieve it.
-	Book savedBook = bookRepository.saveBook(request);
+	Book savedBook = bookRepository.saveBook(request,(long) 0);
 
 	String location = "/books/" + savedBook.getIsbn();
 	BookDto bookResponse = new BookDto(savedBook);
@@ -88,12 +95,74 @@ public class BookResource {
 	    @DefaultValue("available") @QueryParam("status") Status status) {
 	Book book = bookRepository.getBookByISBN(isbn.get());
 	book.setStatus(status);
+	if(status.getValue() == "lost") 
+	{
+		Connection connect;
+		
+		    try
+		    {
+				connect = stompInstance.createConnection();
+				stompInstance.sendMsgQueue(connect,book.getIsbn());
+				connect.close();
+		    }
+		    catch(JMSException e)
+		    {
+		    	e.printStackTrace();
+		    }
+		    catch(Exception e)
+		    {
+		    	e.printStackTrace();
+		    }
+		   
+	}
 
 	BookDto bookResponse = new BookDto(book);
 	String location = "/books/" + book.getIsbn();
 	bookResponse.addLink(new LinkDto("view-book", location, "GET"));
 
 	return Response.status(200).entity(bookResponse).build();
+    }
+    
+    /*
+     * update Library API
+     */
+    @POST
+    @Path("/update")
+    @Timed(name = "update-library")
+    public Response updateLibrary(@Valid String msg) throws Exception {
+    	
+    	String[] updateMessage=msg.split(":", 4); 
+        Long isbn = Long.valueOf(updateMessage[0]);
+        Status status = Status.available;
+
+        Book book = bookRepository.getBookByISBN(isbn);
+        
+        /**If book received from Publisher is equal to lost book, update status*/
+        if (book != null && book.getStatus()==Status.lost) {
+        	book.setStatus(status);
+        	System.out.println("Book " + book.getIsbn() +" updated to 'available' status");
+        }
+        
+        /**If book received from Publisher is new book, add to hashmap*/
+        else if (book == null){
+        	String title = updateMessage[1];
+        	String category = updateMessage[2];
+        	URL coverImage = new URL(updateMessage[3]);
+        	Book newBook = new Book();
+        	//newBook.setIsbn(isbn);
+        	newBook.setTitle(title);
+        	newBook.setCategory(category);
+        	newBook.setCoverimage(coverImage);
+        	bookRepository.saveBook(newBook,isbn);
+        	System.out.println("Book " + newBook.getIsbn() + " added to library");
+        }
+        
+        // already in library
+        else {
+        	System.out.println("Book " + book.getIsbn() + " already in Library ");
+        }
+
+        return Response.ok().build();
     }
 
     @DELETE

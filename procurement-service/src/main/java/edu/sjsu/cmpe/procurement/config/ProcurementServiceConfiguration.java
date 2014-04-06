@@ -10,19 +10,86 @@ import com.yammer.dropwizard.client.JerseyClientConfiguration;
 import com.yammer.dropwizard.config.Configuration;
 
 public class ProcurementServiceConfiguration extends Configuration {
+    @JsonProperty
+    private  String stompQueueName;
+
+    @JsonProperty
+    private  String stompTopicPrefix;
+    
+    @JsonProperty
+    private  String stompTopicName;
+    
     @NotEmpty
     @JsonProperty
-    private String stompQueueName;
+    private  String apolloUser;
 
     @NotEmpty
     @JsonProperty
-    private String stompTopicPrefix;
+    private  String apolloPassword;
+    
+    @NotEmpty
+    @JsonProperty
+    private static String apolloHost;
+    
+    @JsonProperty
+    private  int apolloPort;
+    
 
-    @Valid
-    @NotNull
+    //@Valid
+    //@NotNull
     @JsonProperty
     private JerseyClientConfiguration httpClient = new JerseyClientConfiguration();
 
+    
+    public  String getStompTopicName() {
+		return stompTopicName;
+	}
+
+	public  void setStompTopicName(String stompTopicName) {
+		this.stompTopicName = stompTopicName;
+	}
+
+	public  String getApolloUser() {
+		return apolloUser;
+	}
+
+	public  void setApolloUser(String apolloUser) {
+		this.apolloUser = apolloUser;
+	}
+
+	public  String getApolloPassword() {
+		return apolloPassword;
+	}
+
+	public  void setApolloPassword(String apolloPassword) {
+		this.apolloPassword = apolloPassword;
+	}
+
+	public  String getApolloHost() {
+		return apolloHost;
+	}
+
+	public  void setApolloHost(String apolloHost) {
+		this.apolloHost = apolloHost;
+	}
+
+	public  int getApolloPort() {
+		return apolloPort;
+	}
+
+	public  void setApolloPort(int apolloPort) {
+		this.apolloPort = apolloPort;
+	}
+
+	public JerseyClientConfiguration getHttpClient() {
+		return httpClient;
+	}
+
+	public void setHttpClient(JerseyClientConfiguration httpClient) {
+		this.httpClient = httpClient;
+	}
+
+	
     /**
      * 
      * @return
@@ -34,7 +101,7 @@ public class ProcurementServiceConfiguration extends Configuration {
     /**
      * @return the stompQueueName
      */
-    public String getStompQueueName() {
+    public   String getStompQueueName() {
 	return stompQueueName;
     }
 
@@ -42,16 +109,17 @@ public class ProcurementServiceConfiguration extends Configuration {
      * @param stompQueueName
      *            the stompQueueName to set
      */
-    public void setStompQueueName(String stompQueueName) {
-	this.stompQueueName = stompQueueName;
+    public  void setStompQueueName(String stompQueueName) {
+    	this.stompQueueName = stompQueueName;
     }
 
-    public String getStompTopicPrefix() {
+    public  String getStompTopicPrefix() {
 	return stompTopicPrefix;
     }
 
-    public void setStompTopicPrefix(String stompTopicPrefix) {
-	this.stompTopicPrefix = stompTopicPrefix;
+    public  void setStompTopicPrefix(String stompTopicPrefix) {
+    	this.stompTopicPrefix = stompTopicPrefix;
     }
+
 
 }
