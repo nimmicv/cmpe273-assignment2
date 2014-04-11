@@ -22,7 +22,7 @@ import edu.sjsu.cmpe.library.repository.BookRepository;
 import edu.sjsu.cmpe.library.repository.BookRepositoryInterface;
 
 public class StompMessaging {
-	StompConfiguration stompconfiguration;
+	static StompConfiguration stompconfiguration;
 	BookRepository bookRepository;
 	
 	public StompMessaging()
@@ -36,27 +36,28 @@ public class StompMessaging {
 		bookRepository = (BookRepository) bookRepository2;
 	}
 	
-	public Connection createConnection() throws JMSException
+	public static Connection createConnection() throws JMSException
 	{
-		StompJmsConnectionFactory factory = new StompJmsConnectionFactory();
-        factory.setBrokerURI("tcp://" + stompconfiguration.getHostName() + ":" + stompconfiguration.getPort());
-        Connection connection = factory.createConnection(stompconfiguration.getApolloUser(), stompconfiguration.getPassword());
+		Connection connection = ConnectionObject.getInstance().connection;
         return connection;
 	}
 	
 	public void sendMsgQueue(Connection connection, long ISBN) throws Exception {
         connection.start();
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination dest = new StompJmsDestination(stompconfiguration.getQueueName());
-        MessageProducer producer = session.createProducer(dest);
+        Destination destination = new StompJmsDestination(stompconfiguration.getQueueName());
+        MessageProducer producer = session.createProducer(destination);
         TextMessage msg = session.createTextMessage(stompconfiguration.getLibraryName()+":" + ISBN);
         msg.setLongProperty("id", System.currentTimeMillis());
-        producer.send(msg);
+        producer.setTimeToLive(123);
+        producer.send(msg); 
+        //producer.close();
+        session.close();
+        //connection.stop();
 	}
 	
 	public void subscriber(Connection connection) throws Exception {
 		connection.start();
-		//System.out.println("Inside topic");
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Destination dest = new StompJmsDestination(stompconfiguration.getTopicName());
         MessageConsumer consumer = session.createConsumer(dest);
@@ -87,8 +88,7 @@ public class StompMessaging {
             else {
             	System.out.println("Book " + book.getIsbn() + " is duplicate... discarding the entry");
             }
+            
         }
 	}
-		
-
 }

@@ -67,7 +67,7 @@ public class BookResource {
     @Timed(name = "create-book")
     public Response createBook(@Valid Book request) {
 	// Store the new book in the BookRepository so that we can retrieve it.
-	Book savedBook = bookRepository.saveBook(request,(long) 0);
+	Book savedBook = bookRepository.saveBook(request,(long) -1);
 
 	String location = "/books/" + savedBook.getIsbn();
 	BookDto bookResponse = new BookDto(savedBook);
@@ -103,7 +103,6 @@ public class BookResource {
 		    {
 				connect = stompInstance.createConnection();
 				stompInstance.sendMsgQueue(connect,book.getIsbn());
-				connect.close();
 		    }
 		    catch(JMSException e)
 		    {
@@ -123,48 +122,6 @@ public class BookResource {
 	return Response.status(200).entity(bookResponse).build();
     }
     
-    /*
-     * update Library API
-     */
-    @POST
-    @Path("/update")
-    @Timed(name = "update-library")
-    public Response updateLibrary(@Valid String msg) throws Exception {
-    	
-    	String[] updateMessage=msg.split(":", 4); 
-        Long isbn = Long.valueOf(updateMessage[0]);
-        Status status = Status.available;
-
-        Book book = bookRepository.getBookByISBN(isbn);
-        
-        /**If book received from Publisher is equal to lost book, update status*/
-        if (book != null && book.getStatus()==Status.lost) {
-        	book.setStatus(status);
-        	System.out.println("Book " + book.getIsbn() +" updated to 'available' status");
-        }
-        
-        /**If book received from Publisher is new book, add to hashmap*/
-        else if (book == null){
-        	String title = updateMessage[1];
-        	String category = updateMessage[2];
-        	URL coverImage = new URL(updateMessage[3]);
-        	Book newBook = new Book();
-        	//newBook.setIsbn(isbn);
-        	newBook.setTitle(title);
-        	newBook.setCategory(category);
-        	newBook.setCoverimage(coverImage);
-        	bookRepository.saveBook(newBook,isbn);
-        	System.out.println("Book " + newBook.getIsbn() + " added to library");
-        }
-        
-        // already in library
-        else {
-        	System.out.println("Book " + book.getIsbn() + " already in Library ");
-        }
-
-        return Response.ok().build();
-    }
-
     @DELETE
     @Path("/{isbn}")
     @Timed(name = "delete-book")

@@ -70,7 +70,7 @@ public class BookRepository implements BookRepositoryInterface {
 	checkNotNull(newBook, "newBook instance must not be null");
 	// Generate new ISBN
 	Long isbn =id;
-	if(isbn ==0)
+	if(isbn == -1)
 	{
 		isbn = generateISBNKey();
 		

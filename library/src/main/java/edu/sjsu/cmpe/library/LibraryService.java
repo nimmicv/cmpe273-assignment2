@@ -55,11 +55,6 @@ public class LibraryService extends Service<LibraryServiceConfiguration> {
     stompconfig.setTopicName(configuration.getStompTopicName());
     stompconfig.setHostName(configuration.getApolloHost());
     stompconfig.setLibraryName(configuration.getLibraryName());
-//	String queueName = configuration.getStompQueueName();
-//	String topicName = configuration.getStompTopicName();
-//	String apolloUser = configuration.getApolloUser();
-//	String password = configuration.getApolloPassword();
-//	String port = configuration.getApolloPort();
 	
 	
 	
@@ -88,17 +83,16 @@ public class LibraryService extends Service<LibraryServiceConfiguration> {
 		    	
 		    	try {
 					Thread.sleep(3000);
-					//System.out.println("Hello World");
 					Connection connect;
 					connect = stompInstance.createConnection();
 					stompInstance.subscriber(connect);		
-					//System.out.println("Hello World");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}catch (Exception e) {
 					e.printStackTrace();
 				}
+		    	
 		    }
 		    
 
